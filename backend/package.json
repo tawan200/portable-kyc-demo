@@ -4,16 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "node --watch index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@veramo/core": "^7.0.0",
+    "better-sqlite3": "^12.10.0",
     "cors": "^2.8.6",
+    "did-jwt": "^8.0.18",
     "did-jwt-vc": "^4.0.16",
+    "did-resolver": "^5.0.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "qrcode": "^1.5.4",
