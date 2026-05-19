@@ -1,0 +1,27 @@
+{
+  "name": "portable-kyc-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n frontend,backend -c cyan,green \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tawan200/portable-kyc-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tawan200/portable-kyc-demo/issues"
+  },
+  "homepage": "https://github.com/tawan200/portable-kyc-demo#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
