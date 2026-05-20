@@ -418,12 +418,16 @@ function ScreenLoanDetail({ loan, onConfirm, onBack }) {
 
 // ─── SCREEN 3: QR CODE ───────────────────────────────────────────────────────
 
-function ScreenQR({ loan, onHolderScanned, onBack }) {
+function ScreenQR({ loan, onBack }) {
   const [scanned, setScanned] = useState(false)
 
   const handleSimulate = () => {
     setScanned(true)
-    setTimeout(onHolderScanned, 900)
+    sessionStorage.setItem("verifier_request", JSON.stringify({
+      loanId: loan.id, loanName: loan.name,
+      requiredTypes: loan.requiredTypes, consentTypes: loan.consentTypes,
+    }))
+    setTimeout(() => { window.location.href = "/holder" }, 900)
   }
 
   return (
@@ -495,9 +499,9 @@ function ScreenQR({ loan, onHolderScanned, onBack }) {
   )
 }
 
-// ─── SCREEN 4: HOLDER WALLET (simulated) ─────────────────────────────────────
+// ─── SCREEN 4 (removed — now uses /holder page directly) ─────────────────────
 
-function ScreenHolderWallet({ loan, onSubmit }) {
+function _UNUSED_ScreenHolderWallet({ loan, onSubmit }) {
   const [consent, setConsent] = useState(() => Object.fromEntries(loan.consentTypes.map((t) => [t, true])))
   const [submitting, setSubmitting] = useState(false)
 
@@ -852,23 +856,43 @@ export default function Verifier() {
   const [approval, setApproval] = useState(null)
   const [history, setHistory]   = useState(MOCK_HISTORY)
 
-  const handleVPSubmitted = (selectedVCs) => {
-    const result = calculateApproval(loan, selectedVCs)
-    setApproval(result)
+  // Detect return from holder wallet after VP submission
+  useEffect(() => {
+    const submittedStr = sessionStorage.getItem("holder_submitted")
+    const requestStr   = sessionStorage.getItem("verifier_request")
+    if (!submittedStr || !requestStr) return
+    const { submittedVCTypes } = JSON.parse(submittedStr)
+    const { loanId }           = JSON.parse(requestStr)
+    sessionStorage.removeItem("holder_submitted")
+    sessionStorage.removeItem("verifier_request")
+    const foundLoan = LOAN_PRODUCTS.find(l => l.id === loanId)
+    if (!foundLoan) return
+    const vcTypeMap = {
+      "KYC VC": "kyc", "Income VC": "income",
+      "Work History VC": "workHistory", "Tax VC": "tax",
+    }
+    const selectedVCs = submittedVCTypes
+      .map(t => MOCK_HOLDER_VCS.find(vc => vcTypeKey(vc.type) === vcTypeMap[t]))
+      .filter(Boolean)
+    setLoan(foundLoan)
+    setApproval(calculateApproval(foundLoan, selectedVCs))
     setScreen("processing")
-  }
+  }, [])
 
   const handleProcessingDone = () => {
-    if (approval) {
-      setHistory((prev) => [{
-        id: `v-${Date.now()}`,
-        holderDid: "did:example:holder001",
-        loanName: loan.name,
-        result: approval.approved ? "approved" : "rejected",
-        amount: approval.approved ? approval.approvedAmount : 0,
-        verifiedAt: new Date().toLocaleString("en-GB", { hour12: false }).replace(",", ""),
-      }, ...prev])
-    }
+    setApproval((prev) => {
+      if (prev) {
+        setHistory((h) => [{
+          id: `v-${Date.now()}`,
+          holderDid: "did:example:holder001",
+          loanName: loan?.name || "Unknown",
+          result: prev.approved ? "approved" : "rejected",
+          amount: prev.approved ? prev.approvedAmount : 0,
+          verifiedAt: new Date().toLocaleString("en-GB", { hour12: false }).replace(",", ""),
+        }, ...h])
+      }
+      return prev
+    })
     setScreen("result")
   }
 
@@ -879,8 +903,7 @@ export default function Verifier() {
 
   if (screen === "loans")      return <ScreenLoanList onSelect={(l) => { setLoan(l); setScreen("detail") }} onNavigate={handleNavigate} />
   if (screen === "detail")     return <ScreenLoanDetail loan={loan} onConfirm={() => setScreen("qr")} onBack={() => setScreen("loans")} />
-  if (screen === "qr")         return <ScreenQR loan={loan} onHolderScanned={() => setScreen("holder")} onBack={() => setScreen("detail")} />
-  if (screen === "holder")     return <ScreenHolderWallet loan={loan} onSubmit={handleVPSubmitted} />
+  if (screen === "qr")         return <ScreenQR loan={loan} onBack={() => setScreen("detail")} />
   if (screen === "processing") return <ScreenProcessing onComplete={handleProcessingDone} />
   if (screen === "result")     return <ScreenResult approval={approval} loan={loan} onNewApplication={() => { setLoan(null); setApproval(null); setScreen("loans") }} />
   if (screen === "history")    return <ScreenHistory history={history} onNavigate={handleNavigate} />

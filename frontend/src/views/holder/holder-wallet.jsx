@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ─── MOCK DATA ────────────────────────────────────────────────────────────────
 
@@ -37,7 +37,22 @@ const MOCK_VCS = [
       { key: "filing_ref", label: "Filing Reference", value: "TAX2023-001234", required: false },
     ],
   },
+  {
+    id: "vc-4", type: "Work History VC", issuer: "Fastwork Co., Ltd.",
+    issuerDID: "did:example:fastwork123", summary: "128 jobs · Rating 4.8",
+    status: "valid", expiry: "2026-10-01",
+    fields: [
+      { key: "completed_jobs",         label: "Completed Jobs",         value: "128",      required: true  },
+      { key: "average_rating",         label: "Average Rating",         value: "4.8",      required: true  },
+      { key: "work_consistency_score", label: "Work Consistency Score", value: "92",       required: false },
+      { key: "platform_name",          label: "Platform",               value: "Fastwork", required: false },
+    ],
+  },
 ];
+
+const VC_KEY_TO_TYPE = {
+  kyc: "KYC VC", income: "Income VC", workHistory: "Work History VC", tax: "Tax VC",
+};
 
 // Fields grouped by sd (selective disclosure) flag
 const INCOMING_VC = {
@@ -615,7 +630,10 @@ function ScreenPresentVP({ selectedVCs, toggles, onBack }) {
               <p className="text-gray-900 font-bold">{VERIFIER_INFO.name}</p>
               <p className="text-gray-400 text-xs font-mono mt-0.5 truncate">{VERIFIER_INFO.did}</p>
             </Panel>
-            <Btn onClick={onBack} className="py-3 px-8">Return to Wallet</Btn>
+            {sessionStorage.getItem("verifier_request")
+              ? <Btn onClick={() => { window.location.href = "/verifier" }} className="py-3 px-8">กลับไปที่ Verifier →</Btn>
+              : <Btn onClick={onBack} className="py-3 px-8">Return to Wallet</Btn>
+            }
           </div>
         </div>
       </Shell>
@@ -683,7 +701,11 @@ function ScreenPresentVP({ selectedVCs, toggles, onBack }) {
       {showBiometric && (
         <BiometricModal
           action="Sign & send verifiable presentation"
-          onConfirm={() => { setShowBiometric(false); setSent(true); }}
+          onConfirm={() => {
+            sessionStorage.setItem("holder_submitted", JSON.stringify({ submittedVCTypes: selectedVCs.map(vc => vc.type) }))
+            setShowBiometric(false)
+            setSent(true)
+          }}
           onCancel={() => setShowBiometric(false)}
         />
       )}
@@ -698,6 +720,19 @@ export default function App() {
   const [vcs, setVCs] = useState(MOCK_VCS);
   const [selectedVCs, setSelectedVCs] = useState([]);
   const [toggles, setToggles] = useState({});
+
+  useEffect(() => {
+    const reqStr = sessionStorage.getItem("verifier_request")
+    if (!reqStr) return
+    const req = JSON.parse(reqStr)
+    const typeStrings = [...(req.requiredTypes || []), ...(req.consentTypes || [])]
+      .map(k => VC_KEY_TO_TYPE[k]).filter(Boolean)
+    const matched = MOCK_VCS.filter(vc => typeStrings.includes(vc.type))
+    if (matched.length > 0) {
+      setSelectedVCs(matched)
+      setScreen("disclosure")
+    }
+  }, []);
 
   if (screen === "receive") return <ScreenReceiveVC onAccept={() => { setVCs((p) => [...p, { ...INCOMING_VC, status: "valid", summary: "Work · Senior Dev", fields: [...INCOMING_VC.autoFields.map(f => ({...f, value: "—", required: true})), ...INCOMING_VC.selectableFields.map(f => ({...f, value: "—", required: false}))] }]); setScreen("wallet"); }} onReject={() => setScreen("wallet")} />;
   if (screen === "wallet") return <ScreenWalletHome vcs={vcs} onCreateVP={() => setScreen("createVP")} onNavigate={() => {}} />;
