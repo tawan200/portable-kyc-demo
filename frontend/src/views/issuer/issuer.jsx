@@ -2,6 +2,13 @@ import { useState } from "react"
 
 // ─── MOCK DATA ────────────────────────────────────────────────────────────────
 
+const MOCK_REQUESTS = [
+  { id: "req-1", holderName: "Somchai Jaidee",  holderDid: "did:example:holder001", requestedTypes: ["kyc", "income"],      note: "ขอสินเชื่อธุรกิจ",     requestedAt: "2025-11-02 09:14", status: "pending" },
+  { id: "req-2", holderName: "Malee Rakdee",    holderDid: "did:example:holder002", requestedTypes: ["income", "workHistory"], note: "สมัครงาน Freelance",   requestedAt: "2025-11-02 08:30", status: "pending" },
+  { id: "req-3", holderName: "Somsak Wisut",    holderDid: "did:example:holder004", requestedTypes: ["kyc"],                note: "เปิดบัญชีธนาคาร",      requestedAt: "2025-11-01 17:45", status: "pending" },
+  { id: "req-4", holderName: "Nida Jantaree",   holderDid: "did:example:holder005", requestedTypes: ["kyc", "income", "tax"], note: "ยื่นภาษีออนไลน์",   requestedAt: "2025-11-01 14:02", status: "pending" },
+]
+
 const MOCK_HISTORY = [
   { id: "h-1", holderDid: "did:example:holder001", holderName: "Somchai Jaidee",   types: ["KYC VC", "Income VC"],          issuedAt: "2025-11-01 14:32", status: "active"  },
   { id: "h-2", holderDid: "did:example:holder002", holderName: "Malee Rakdee",     types: ["Income VC", "Work History VC"], issuedAt: "2025-10-28 09:15", status: "active"  },
@@ -73,8 +80,8 @@ function Btn({ children, onClick, disabled, variant = "primary", className = "" 
 // ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 
 const NAV = [
-  { id: "issue",   label: "Issue Credential", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-  { id: "history", label: "Issued History",   icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
+  { id: "requests", label: "Requests",      icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+  { id: "history",  label: "Issued History", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
 ]
 
 function Sidebar({ active, onNavigate }) {
@@ -149,11 +156,85 @@ function Shell({ children, active, onNavigate }) {
   )
 }
 
+// ─── SCREEN: REQUESTS LIST ────────────────────────────────────────────────────
+
+function ScreenRequests({ requests, onSelect, pendingCount }) {
+  return (
+    <Shell active="requests" onNavigate={() => {}}>
+      <TopBar
+        title="Credential Requests"
+        subtitle="Issuer Portal"
+        actions={
+          <span className="text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-sm">
+            {pendingCount} pending
+          </span>
+        }
+      />
+      <div className="p-6 max-w-4xl mx-auto w-full">
+
+        <div className="mb-5 bg-blue-50 border border-blue-200 rounded-sm px-4 py-3 flex items-start gap-3">
+          <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <p className="text-blue-700 text-sm">Freelancers below have requested credentials. Click a request to review and issue.</p>
+        </div>
+
+        <Panel className="overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+            <p className="text-gray-700 font-bold text-xs uppercase tracking-widest">Pending Requests</p>
+            <span className="text-gray-400 text-xs">{requests.length} request{requests.length !== 1 ? "s" : ""}</span>
+          </div>
+
+          {requests.length === 0 ? (
+            <div className="p-16 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <svg className="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              </div>
+              <p className="font-bold text-gray-500">No pending requests</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {requests.map((req) => (
+                <button key={req.id} onClick={() => onSelect(req)}
+                  className="w-full px-5 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors text-left group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-900 font-semibold text-sm">{req.holderName}</p>
+                    <p className="text-gray-400 text-xs font-mono truncate">{req.holderDid}</p>
+                    {req.note && <p className="text-gray-500 text-xs mt-0.5 italic">"{req.note}"</p>}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 justify-end max-w-[200px]">
+                    {req.requestedTypes.map((t) => {
+                      const cfg = CLAIM_TYPES[t]
+                      return <span key={t} className={`text-[10px] font-bold px-2 py-0.5 rounded-sm ${cfg?.badge || "bg-gray-100 text-gray-600 border border-gray-200"}`}>{cfg?.vcType || t}</span>
+                    })}
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-gray-400 text-xs">{req.requestedAt}</p>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-sm mt-0.5 inline-block bg-amber-50 text-amber-700 border border-amber-200">
+                      Pending
+                    </span>
+                  </div>
+                  <svg className="w-4 h-4 text-gray-300 group-hover:text-gray-500 flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              ))}
+            </div>
+          )}
+        </Panel>
+      </div>
+    </Shell>
+  )
+}
+
 // ─── SCREEN: ISSUE FORM ───────────────────────────────────────────────────────
 
-function ScreenIssueForm({ onIssued }) {
-  const [holderDid, setHolderDid] = useState("")
-  const [enabled, setEnabled]   = useState({ kyc: true, income: false, workHistory: false, tax: false })
+function ScreenIssueForm({ request, onIssued, onBack }) {
+  const [holderDid, setHolderDid] = useState(request?.holderDid || "")
+  const initEnabled = request
+    ? Object.fromEntries(Object.keys(CLAIM_TYPES).map((k) => [k, request.requestedTypes.includes(k)]))
+    : { kyc: true, income: false, workHistory: false, tax: false }
+  const [enabled, setEnabled]   = useState(initEnabled)
   const [formData, setFormData]  = useState({})
 
   const toggleType = (t) => setEnabled((p) => ({ ...p, [t]: !p[t] }))
@@ -167,20 +248,36 @@ function ScreenIssueForm({ onIssued }) {
   }
 
   return (
-    <Shell active="issue" onNavigate={() => {}}>
-      <TopBar title="Issue Credential" subtitle="Issuer Portal" />
+    <Shell active="requests" onNavigate={() => {}}>
+      <TopBar title="Issue Credential" subtitle="Issuer Portal" actions={<Btn onClick={onBack} variant="ghost">← Back</Btn>} />
       <div className="p-6 max-w-3xl mx-auto w-full">
 
-        <Panel className="p-5 mb-5">
-          <p className="text-gray-400 text-xs uppercase tracking-widest font-semibold mb-3">Credential Recipient</p>
-          <label className="block mb-1 text-sm font-semibold text-gray-700">Holder DID</label>
-          <input
-            value={holderDid} onChange={(e) => setHolderDid(e.target.value)}
-            placeholder="did:example:holder001"
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm font-mono text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
-          />
-          <p className="text-gray-400 text-xs mt-1.5">DID of the freelancer receiving this credential</p>
-        </Panel>
+        {request && (
+          <Panel className="p-4 mb-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-gray-900 font-bold text-sm">{request.holderName}</p>
+              <p className="text-gray-400 text-xs font-mono truncate">{request.holderDid}</p>
+              {request.note && <p className="text-gray-500 text-xs mt-0.5 italic">"{request.note}"</p>}
+            </div>
+            <span className="text-[10px] font-semibold px-2.5 py-1 rounded-sm bg-amber-50 text-amber-700 border border-amber-200">Pending Request</span>
+          </Panel>
+        )}
+
+        {!request && (
+          <Panel className="p-5 mb-5">
+            <p className="text-gray-400 text-xs uppercase tracking-widest font-semibold mb-3">Credential Recipient</p>
+            <label className="block mb-1 text-sm font-semibold text-gray-700">Holder DID</label>
+            <input
+              value={holderDid} onChange={(e) => setHolderDid(e.target.value)}
+              placeholder="did:example:holder001"
+              className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm font-mono text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+            />
+            <p className="text-gray-400 text-xs mt-1.5">DID of the freelancer receiving this credential</p>
+          </Panel>
+        )}
 
         <p className="text-gray-700 font-bold text-xs uppercase tracking-widest mb-3">Select Credential Types</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
@@ -237,7 +334,7 @@ function ScreenSuccess({ result, onIssueAnother, onViewHistory }) {
   const [showJWT, setShowJWT] = useState(false)
 
   return (
-    <Shell active="issue" onNavigate={() => {}}>
+    <Shell active="requests" onNavigate={() => {}}>
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="max-w-lg w-full">
           <div className="text-center mb-8">
@@ -335,9 +432,11 @@ function ScreenHistory({ history, onNavigate }) {
 // ─── APP ─────────────────────────────────────────────────────────────────────
 
 export default function Issuer() {
-  const [screen, setScreen]   = useState("issue")
-  const [result, setResult]   = useState(null)
-  const [history, setHistory] = useState(MOCK_HISTORY)
+  const [screen, setScreen]               = useState("requests")
+  const [requests, setRequests]           = useState(MOCK_REQUESTS)
+  const [selectedRequest, setSelectedRequest] = useState(null)
+  const [result, setResult]               = useState(null)
+  const [history, setHistory]             = useState(MOCK_HISTORY)
 
   const handleIssued = (data) => {
     const credentials = Object.keys(data.claims).map((type, i) => ({
@@ -347,16 +446,28 @@ export default function Issuer() {
     setResult({ holderDid: data.holderDid, credentials })
     setHistory((prev) => [{
       id: `h-${Date.now()}`, holderDid: data.holderDid,
-      holderName: data.claims.kyc?.full_name || "Unknown",
+      holderName: data.claims.kyc?.full_name || selectedRequest?.holderName || "Unknown",
       types: Object.keys(data.claims).map((t) => CLAIM_TYPES[t]?.vcType || t),
       issuedAt: new Date().toLocaleString("en-GB", { hour12: false }).replace(",", ""),
       status: "active",
     }, ...prev])
+    if (selectedRequest) {
+      setRequests((prev) => prev.map((r) => r.id === selectedRequest.id ? { ...r, status: "issued" } : r))
+    }
     setScreen("success")
   }
 
-  if (screen === "issue")   return <ScreenIssueForm onIssued={handleIssued} />
-  if (screen === "success") return <ScreenSuccess result={result} onIssueAnother={() => setScreen("issue")} onViewHistory={() => setScreen("history")} />
-  if (screen === "history") return <ScreenHistory history={history} onNavigate={(id) => id === "issue" && setScreen("issue")} />
+  const pendingCount = requests.filter((r) => r.status === "pending").length
+
+  if (screen === "requests") return (
+    <ScreenRequests
+      requests={requests.filter((r) => r.status === "pending")}
+      pendingCount={pendingCount}
+      onSelect={(req) => { setSelectedRequest(req); setScreen("form") }}
+    />
+  )
+  if (screen === "form")    return <ScreenIssueForm request={selectedRequest} onIssued={handleIssued} onBack={() => setScreen("requests")} />
+  if (screen === "success") return <ScreenSuccess result={result} onIssueAnother={() => { setSelectedRequest(null); setScreen("requests") }} onViewHistory={() => setScreen("history")} />
+  if (screen === "history") return <ScreenHistory history={history} onNavigate={(id) => id === "requests" && setScreen("requests")} />
   return null
 }
