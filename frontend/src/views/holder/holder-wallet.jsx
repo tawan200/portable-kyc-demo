@@ -137,22 +137,37 @@ const NAV_ITEMS = [
 
 function Sidebar({ active, onNavigate }) {
   return (
-    <aside className="hidden lg:flex flex-col w-60 min-h-screen bg-[#0f1d36] flex-shrink-0">
+    <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-60 flex-col bg-[#0f1d36] shrink-0">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-white/[0.08]">
+      <div className="px-5 py-5 border-b border-white/8">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+          <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center shrink-0">
+            <svg
+              className="w-4 h-4 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
           </div>
+
           <div>
-            <p className="text-white font-bold text-sm tracking-tight">TrustVault</p>
-            <p className="text-blue-300/60 text-[10px] tracking-widest uppercase">Digital Wallet</p>
+            <p className="text-white font-bold text-sm tracking-tight">
+              TrustVault
+            </p>
+            <p className="text-blue-300/60 text-[10px] tracking-widest uppercase">
+              Digital Wallet
+            </p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {NAV_ITEMS.map((item) => (
           <button
             key={item.id}
@@ -163,9 +178,20 @@ function Sidebar({ active, onNavigate }) {
                 : "text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active === item.id ? 2 : 1.5} d={item.icon} />
+            <svg
+              className="w-4 h-4 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={active === item.id ? 2 : 1.5}
+                d={item.icon}
+              />
             </svg>
+
             {item.label}
           </button>
         ))}
@@ -178,10 +204,16 @@ function Sidebar({ active, onNavigate }) {
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex-shrink-0" />
             <p className="text-white text-xs font-semibold">Somchai Jaidee</p>
           </div>
-          <p className="text-slate-500 text-[10px] font-mono truncate">did:example:holder001</p>
+
+          <p className="text-slate-500 text-[10px] font-mono truncate">
+            did:example:holder001
+          </p>
+
           <div className="flex items-center gap-1 mt-2">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[10px] text-slate-500">Secure session active</span>
+            <span className="text-[10px] text-slate-500">
+              Secure session active
+            </span>
           </div>
         </div>
       </div>
@@ -193,15 +225,35 @@ function Sidebar({ active, onNavigate }) {
 
 function TopBar({ title, subtitle, actions }) {
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+    <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
       <div>
-        <p className="text-gray-400 text-xs font-medium uppercase tracking-widest">{subtitle}</p>
-        <h1 className="text-gray-900 font-bold text-lg leading-tight">{title}</h1>
+        <p className="text-gray-400 text-xs font-medium uppercase tracking-widest">
+          {subtitle}
+        </p>
+
+        <h1 className="text-gray-900 font-bold text-lg leading-tight">
+          {title}
+        </h1>
       </div>
+
       <div className="flex items-center gap-3">
         {actions}
+
         <button className="relative w-8 h-8 flex items-center justify-center rounded-sm bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-800 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+            />
+          </svg>
+
           <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-600 rounded-full" />
         </button>
       </div>
@@ -278,9 +330,14 @@ function VCCard({ vc, onClick, selectable, selected }) {
 
 function Shell({ children, active, onNavigate }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+    <div
+      className="min-h-screen bg-gray-50"
+      style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
+    >
       <Sidebar active={active} onNavigate={onNavigate} />
-      <div className="flex-1 min-w-0 flex flex-col">{children}</div>
+
+      {/* Main content */}
+      <div className="lg:ml-60 min-w-0 flex flex-col">{children}</div>
     </div>
   );
 }
@@ -706,4 +763,3 @@ export default function App() {
   if (screen === "presentVP") return <ScreenPresentVP selectedVCs={selectedVCs} toggles={toggles} onBack={() => setScreen("wallet")} />;
   return null;
 }
-
