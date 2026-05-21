@@ -196,6 +196,40 @@ const MOCK_HISTORY = [
   },
 ];
 
+const MOCK_ISSUERS = [
+  {
+    id: "issuer-platform",
+    name: "Platform",
+    description: "ออกเอกสารรายได้และประวัติการทำงาน",
+    did: "did:example:platform001",
+    type: ["income", "workHistory"],
+  },
+
+  {
+    id: "issuer-dopa",
+    name: "DOPA",
+    description: "กรมการปกครอง",
+    did: "did:example:dopa001",
+    type: ["kyc"],
+  },
+
+  {
+    id: "issuer-social",
+    name: "Department of Social Development",
+    description: "ออกเอกสารด้านสวัสดิการสังคม",
+    did: "did:example:social001",
+    type: ["welfare"],
+  },
+
+  {
+    id: "issuer-bureau",
+    name: "Bureau",
+    description: "หน่วยงานราชการ",
+    did: "did:example:bureau001",
+    type: ["official"],
+  },
+];
+
 // ─── โครงสร้างหลักของหน้า (LAYOUT SHELL) ───────────────────────────────────
 function Shell({ children, active, onNavigate }) {
   return (
@@ -675,6 +709,23 @@ function ScreenWalletHome({ vcs, onCreateVP, onNavigate, onOpenDetails }) {
               </div>
 
               <button
+                onClick={() => onNavigate("scanVC")}
+                className="
+                  h-12
+                  px-5
+                  rounded-2xl
+                  bg-blue-500
+                  hover:bg-blue-600
+                  text-white
+                  font-semibold
+                  transition-all
+                  shadow-xl
+                "
+              >
+                สร้าง VC
+              </button>
+              
+              <button
                 onClick={onCreateVP}
                 className="
                   h-12
@@ -892,6 +943,192 @@ function ScreenWalletHome({ vcs, onCreateVP, onNavigate, onOpenDetails }) {
               ))}
             </div>
           )}
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+// ─── แสกน QR ────────────────────────────────────────────────────────
+function ScreenScanIssuerQR({
+  issuer,
+  onComplete,
+  onBack,
+}) {
+  return (
+    <Shell active="wallet">
+      <div className="min-h-screen bg-[#f4f7fb] px-6 py-8">
+        <div className="max-w-xl mx-auto">
+          <button
+            onClick={onBack}
+            className="text-slate-500 text-sm mb-6"
+          >
+            ← กลับ
+          </button>
+
+          <div className="bg-white rounded-[32px] p-8 border border-slate-200 text-center">
+            <div
+              className="
+                w-24 h-24
+                rounded-3xl
+                bg-blue-100
+                mx-auto
+                flex
+                items-center
+                justify-center
+                mb-6
+              "
+            >
+              <svg
+                className="w-12 h-12 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM16 16h4v4h-4z"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Scan Issuer QR
+            </h2>
+
+            <p className="text-slate-500 mb-8">
+              สแกน QR Code ที่ออกโดย {issuer.name}
+            </p>
+
+            {/* MOCK QR */}
+            <div
+              className="
+                w-64 h-64
+                mx-auto
+                rounded-3xl
+                border-8
+                border-slate-100
+                bg-[repeating-linear-gradient(45deg,#111_0,#111_10px,#fff_10px,#fff_20px)]
+                mb-8
+              "
+            />
+
+            <button
+              onClick={onComplete}
+              className="
+                w-full
+                h-14
+                rounded-2xl
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                font-semibold
+                transition-all
+              "
+            >
+              Demo: Complete Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+// ─── แสดง status ────────────────────────────────────────────────────────
+function ScreenVCRequestStatus({
+  issuer,
+  onDone,
+}) {
+  return (
+    <Shell active="wallet">
+      <div className="min-h-screen bg-[#f4f7fb] flex items-center justify-center px-6">
+        <div
+          className="
+            max-w-lg
+            w-full
+            bg-white
+            rounded-[36px]
+            border
+            border-slate-200
+            p-10
+            text-center
+          "
+        >
+          <div
+            className="
+              w-24 h-24
+              rounded-full
+              bg-emerald-100
+              flex
+              items-center
+              justify-center
+              mx-auto
+              mb-6
+            "
+          >
+            <svg
+              className="w-12 h-12 text-emerald-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+
+          <h1 className="text-3xl font-bold text-slate-900 mb-3">
+            Request Completed
+          </h1>
+
+          <p className="text-slate-500 leading-relaxed">
+            คำขอ VC ถูกส่งไปยัง {issuer.name} แล้ว
+            ระบบกำลังดำเนินการออก Credential
+          </p>
+
+          <div
+            className="
+              mt-8
+              rounded-2xl
+              bg-slate-50
+              border
+              border-slate-200
+              p-4
+              text-left
+            "
+          >
+            <p className="text-sm text-slate-400 mb-1">
+              Issuer DID
+            </p>
+
+            <p className="font-mono text-sm text-slate-700">
+              {issuer.did}
+            </p>
+          </div>
+
+          <button
+            onClick={onDone}
+            className="
+              mt-8
+              w-full
+              h-14
+              rounded-2xl
+              bg-slate-900
+              hover:bg-black
+              text-white
+              font-semibold
+              transition-all
+            "
+          >
+            กลับหน้า Wallet
+          </button>
         </div>
       </div>
     </Shell>
@@ -2681,6 +2918,8 @@ export default function App() {
 
   const [showConsent, setShowConsent] = useState(false);
 
+  const [selectedIssuer, setSelectedIssuer] = useState(null);
+
   const handleNavigate = (target) => {
     if (target === "wallet") {
       setScreen("wallet");
@@ -2696,6 +2935,11 @@ export default function App() {
 
     if (target === "settings") {
       setScreen("settings");
+    }
+
+    if (target === "scanVC") {
+      setSelectedIssuer(MOCK_ISSUERS[0]);
+      setScreen("scanIssuerQR");
     }
   };
 
@@ -2828,6 +3072,37 @@ export default function App() {
   }
 
   // =========================================
+  // SCAN ISSUER QR
+  // =========================================
+
+  if (screen === "scanIssuerQR") {
+    return (
+      <ScreenScanIssuerQR
+        issuer={selectedIssuer}
+        onBack={() => setScreen("wallet")}
+        onComplete={() => {
+          setScreen("vcRequestStatus");
+        }}
+      />
+    );
+  }
+
+  // =========================================
+  // VC REQUEST STATUS
+  // =========================================
+
+  if (screen === "vcRequestStatus") {
+    return (
+      <ScreenVCRequestStatus
+        issuer={selectedIssuer}
+        onDone={() => {
+          setScreen("wallet");
+        }}
+      />
+    );
+  }
+
+  // =========================================
   // WALLET HOME
   // =========================================
 
@@ -2851,6 +3126,11 @@ export default function App() {
 
           if (target === "settings") {
             setScreen("settings");
+          }
+
+          if (target === "scanVC") {
+            setSelectedIssuer(MOCK_ISSUERS[0]);
+            setScreen("scanIssuerQR");
           }
         }}
         onOpenDetails={(vc) => {

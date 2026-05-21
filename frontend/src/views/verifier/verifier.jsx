@@ -1380,8 +1380,18 @@ function ScreenQR({ loan, onBack }) {
 
               {/* SECURITY */}
               <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-                <div className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
-                  DID Verified
+                <div
+                  className="
+                    px-4 py-2 rounded-full
+                    bg-emerald-50
+                    text-emerald-700
+                    text-sm
+                    font-semibold
+                    flex items-center gap-2
+                  "
+                >
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  DID Resolution Enabled
                 </div>
 
                 <div className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
@@ -1476,8 +1486,13 @@ function ScreenProcessing({ onComplete }) {
   const [step, setStep] = useState(0);
 
   const steps = [
+    "Resolving Holder DID",
+    "Verifying Holder DID Document",
+    "Resolving Issuer DID",
+    "Verifying Issuer Trust Chain",
     "Validating Verifiable Credentials",
     "Verifying Digital Signatures",
+    "Checking Credential Revocation Status",
     "Analyzing Financial Information",
     "Calculating Credit Assessment",
   ];
@@ -1584,6 +1599,155 @@ function ScreenProcessing({ onComplete }) {
             <p className="text-slate-500 text-lg leading-relaxed">
               ระบบกำลังตรวจสอบ Verifiable Credentials และประเมินข้อมูลทางการเงิน
             </p>
+          </div>
+
+          {/* DID VERIFICATION */}
+          <div
+            className="
+              rounded-3xl
+              border
+              border-emerald-100
+              bg-white
+              p-6
+              shadow-xl
+              shadow-emerald-100/30
+              mb-6
+            "
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-lg font-bold text-slate-900">
+                  DID Verification
+                </p>
+
+                <p className="text-sm text-slate-500">
+                  Resolving decentralized identifiers
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm font-semibold">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Live Check
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* HOLDER DID */}
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+                      Holder DID
+                    </p>
+
+                    <p className="font-mono text-sm text-slate-800 break-all">
+                      did:key:z6Mkholder8F3A92LmX
+                    </p>
+                  </div>
+
+                  {step >= 2 ? (
+                    <div className="flex items-center gap-2 text-emerald-600 text-sm font-semibold">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      Verified
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-blue-600 text-sm font-semibold">
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-30"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+
+                        <path
+                          className="opacity-100"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
+                      </svg>
+                      Resolving...
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* ISSUER DID */}
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+                      Issuer DID
+                    </p>
+
+                    <p className="font-mono text-sm text-slate-800 break-all">
+                      did:web:issuer.trustbank.io
+                    </p>
+                  </div>
+
+                  {step >= 4 ? (
+                    <div className="flex items-center gap-2 text-emerald-600 text-sm font-semibold">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      Trusted
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-blue-600 text-sm font-semibold">
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-30"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+
+                        <path
+                          className="opacity-100"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
+                      </svg>
+                      Validating...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* TIMELINE */}
@@ -2439,7 +2603,7 @@ function ScreenHistory({ history, onNavigate, onOpenDetail }) {
   );
 }
 
-// ─── SCREEN: History Detail ─────────────────────────────────────────────────────────
+// ─── SCREEN: History Detail ──────────────────────────────────────────────────
 function ScreenHistoryDetail({ item, onBack }) {
   const approved = item.result === "approved";
 
@@ -2899,6 +3063,16 @@ export default function Verifier() {
               time: "10:42:15",
             },
             {
+              title: "Holder DID Verified",
+              desc: "Holder DID document resolved successfully",
+              time: "10:42:16",
+            },
+            {
+              title: "Issuer DID Trusted",
+              desc: "Issuer DID verified against trusted registry",
+              time: "10:42:17",
+            },
+            {
               title: "Credential Verification",
               desc: "All digital signatures validated",
               time: "10:42:18",
@@ -2926,6 +3100,8 @@ export default function Verifier() {
           // ─── VERIFICATION ──────────────────
           verification: {
             didVerified: true,
+            holderDid: "did:key:z6Mkholder8F3A92LmX",
+            issuerDid: "did:web:issuer.trustbank.io",
             signatureVerified: true,
             issuerTrusted: true,
             revocationChecked: true,

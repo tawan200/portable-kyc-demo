@@ -1,6 +1,6 @@
 import { NAV_ITEMS } from "./navigation/navItems";
 
-export default function Sidebar({ active, onNavigate }) {
+export default function Sidebar({ active, onNavigate, onLogout }) {
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-60 flex-col bg-[#0f1d36] shrink-0">
       {/* โลโก้ */}
@@ -63,8 +63,9 @@ export default function Sidebar({ active, onNavigate }) {
         ))}
       </nav>
 
-      {/* User */}
-      <div className="px-3 pb-5">
+      {/* USER + LOGOUT */}
+      <div className="px-3 pb-5 space-y-3">
+        {/* User Card */}
         <div className="bg-white/[0.05] border border-white/[0.08] rounded-sm p-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex-shrink-0" />
@@ -77,13 +78,52 @@ export default function Sidebar({ active, onNavigate }) {
           </p>
 
           <div className="flex items-center gap-1 mt-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
 
             <span className="text-[10px] text-slate-500">
               เซสชันปลอดภัยกำลังใช้งาน
             </span>
           </div>
         </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={onLogout}
+          className="
+            w-full
+            flex
+            items-center
+            justify-center
+            gap-2
+            px-3
+            py-2.5
+            rounded-sm
+            border
+            border-red-500/20
+            bg-red-500/10
+            text-red-300
+            hover:bg-red-500/20
+            hover:text-red-200
+            transition-all
+            text-sm
+            font-medium
+          "
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.8}
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"
+            />
+          </svg>
+          ออกจากระบบ
+        </button>
       </div>
     </aside>
   );
