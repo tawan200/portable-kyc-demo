@@ -1,87 +1,300 @@
+// VC Card Component
 import { StatusBadge, TypeBadge } from "./index";
-
 import { getAccent } from "./Utils/vcUtils";
 
 export default function VCCard({ vc, onClick, selectable, selected }) {
   const accent = getAccent(vc.type);
 
+  const statusConfig = {
+    valid: {
+      dot: "bg-emerald-500",
+      bg: "bg-emerald-50",
+      border: "border-emerald-100",
+      label: "พร้อมใช้งาน",
+    },
+    expiring: {
+      dot: "bg-amber-500",
+      bg: "bg-amber-50",
+      border: "border-amber-100",
+      label: "ใกล้หมดอายุ",
+    },
+    revoked: {
+      dot: "bg-red-500",
+      bg: "bg-red-50",
+      border: "border-red-100",
+      label: "ถูกยกเลิก",
+    },
+  };
+
+  const statusUI = statusConfig[vc.status] || statusConfig.valid;
+
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      className={`relative bg-white border rounded-md overflow-hidden cursor-pointer transition-all duration-150 group
+      aria-pressed={selected}
+      className={`
+        relative w-full text-left overflow-hidden rounded-3xl border bg-white
+        transition-all duration-200 ease-out
+        group
+
         ${
           selectable
             ? selected
-              ? "border-blue-500 shadow-md shadow-blue-100"
-              : "border-gray-200 hover:border-gray-400"
-            : "border-gray-200 hover:border-gray-400 hover:shadow-md"
-        }`}
+              ? `
+                border-blue-600
+                bg-blue-50/40
+                shadow-xl shadow-blue-100/70
+                ring-4 ring-blue-100
+                scale-[1.01]
+              `
+              : `
+                border-slate-200
+                hover:border-slate-300
+                hover:shadow-lg
+                hover:-translate-y-0.5
+                active:scale-[0.99]
+              `
+            : `
+              border-slate-200
+              hover:border-slate-300
+              hover:shadow-lg
+              hover:-translate-y-0.5
+            `
+        }
+      `}
     >
-      <div className={`h-0.5 w-full bg-gradient-to-r ${accent}`} />
+      {/* Top Accent */}
+      <div className={`h-1.5 w-full bg-gradient-to-r ${accent}`} />
+
+      {/* Selection Layer */}
+      {selectable && (
+        <>
+          {/* Background Highlight */}
+          {selected && (
+            <div className="absolute inset-0 bg-blue-500/[0.03] pointer-events-none" />
+          )}
+
+          {/* Checkbox */}
+          <div className="absolute top-4 right-4 z-20">
+            <div
+              className={`
+                w-7 h-7 rounded-xl border-2 flex items-center justify-center
+                transition-all duration-200 shadow-sm
+
+                ${
+                  selected
+                    ? `
+                      bg-blue-600
+                      border-blue-600
+                      shadow-blue-200
+                    `
+                    : `
+                      bg-white
+                      border-slate-300
+                      group-hover:border-slate-400
+                    `
+                }
+              `}
+            >
+              {selected ? (
+                <svg
+                  className="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              ) : (
+                <div className="w-2 h-2 rounded-full bg-slate-300 group-hover:bg-slate-400 transition-colors" />
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="p-5">
-        <div className="flex items-start justify-between mb-3">
-          <TypeBadge type={vc.type} />
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 mb-4 pr-10">
+          <div className="min-w-0 flex-1">
+            <TypeBadge type={vc.type} />
 
-          <div className="flex items-center gap-2">
-            <StatusBadge status={vc.status} />
+            <h3 className="mt-3 text-[15px] font-bold text-slate-900 leading-snug">
+              {vc.issuer}
+            </h3>
 
-            {selectable && (
-              <div
-                className={`w-5 h-5 rounded-sm border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                  selected ? "bg-blue-600 border-blue-600" : "border-gray-300"
-                }`}
-              >
-                {selected && (
-                  <svg
-                    className="w-3 h-3 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                )}
-              </div>
-            )}
+            <p className="mt-1 text-sm text-slate-500 leading-relaxed line-clamp-2">
+              {vc.summary}
+            </p>
           </div>
+
+          {!selectable && (
+            <div className="flex-shrink-0">
+              <StatusBadge status={vc.status} />
+            </div>
+          )}
         </div>
 
-        <p className="text-gray-900 font-bold text-base mt-3 leading-tight">
-          {vc.issuer}
-        </p>
+        {/* Selected State Banner */}
+        {selectable && (
+          <div
+            className={`
+              mb-4 rounded-2xl border px-4 py-3 transition-all
 
-        <p className="text-gray-500 text-sm mt-0.5">{vc.summary}</p>
+              ${
+                selected
+                  ? `
+                    bg-blue-50
+                    border-blue-200
+                  `
+                  : `
+                    bg-slate-50
+                    border-slate-200
+                  `
+              }
+            `}
+          >
+            <div className="flex items-center gap-2">
+              <div
+                className={`
+                  w-2 h-2 rounded-full
 
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-1.5">
-            <svg
-              className="w-3 h-3 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  ${selected ? "bg-blue-600" : "bg-slate-300"}
+                `}
               />
-            </svg>
 
-            <span className="text-gray-400 text-xs font-mono truncate max-w-[140px]">
-              {vc.issuerDID}
+              <p
+                className={`
+                  text-sm font-semibold
+
+                  ${selected ? "text-blue-700" : "text-slate-500"}
+                `}
+              >
+                {selected ? "เลือกเอกสารนี้แล้ว" : "แตะเพื่อเลือกเอกสาร"}
+              </p>
+
+              {selected && (
+                <span className="ml-auto text-[11px] font-bold text-blue-700 bg-white border border-blue-200 px-2 py-1 rounded-lg">
+                  SELECTED
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Security Status */}
+        <div
+          className={`
+            rounded-2xl border px-4 py-3 mb-4
+            ${statusUI.bg}
+            ${statusUI.border}
+          `}
+        >
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${statusUI.dot}`} />
+
+            <p className="text-sm font-semibold text-slate-700">
+              {statusUI.label}
+            </p>
+
+            <span className="ml-auto text-[11px] text-slate-400 font-medium">
+              VC 2.0
             </span>
           </div>
-
-          <span className="text-gray-400 text-xs">หมดอายุ {vc.expiry}</span>
         </div>
+
+        {/* Meta */}
+        <div className="space-y-3">
+          {/* DID */}
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-4 h-4 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 9h8M8 13h6m5 8H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">
+                Issuer DID
+              </p>
+
+              <p className="text-xs font-mono text-slate-600 truncate">
+                {vc.issuerDID}
+              </p>
+            </div>
+          </div>
+
+          {/* Expiration */}
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-4 h-4 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+
+            <div className="flex-1">
+              <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">
+                Expiration Date
+              </p>
+
+              <p className="text-sm font-semibold text-slate-700">
+                {vc.expiry}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        {!selectable && (
+          <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-xs text-slate-400">แตะเพื่อดูรายละเอียด</p>
+
+            <div className="flex items-center gap-1 text-slate-500 group-hover:translate-x-0.5 transition-transform">
+              <span className="text-xs font-semibold">ดูข้อมูล</span>
+
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </button>
   );
 }
